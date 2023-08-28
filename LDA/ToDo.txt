@@ -1,0 +1,52 @@
+Como no conocemos la data como tal, resulta muy complicado caracterizar los tópicos. Sin embargo, 
+tenemos a disposición una información crucial: Cuáles son las trazas ERROR y por ende, cuáles son los 
+logs asociados a estas trazas.
+De esta manera, si conocemos cual es el tópico predominante en los error-traces, tendremos una interesante manera de caracterizar
+uno de estos tópicos.
+
+Problema de esto: -Como no manejamos la data, tenemos que hacer un montón de suposiciones de dudosa reputación.
+                  -Si bien tenemos una potencial manera de caracterizar un tópico, ¿qué pasa con el resto?
+
+Otra manera de afrontar esto, es identificar cuáles son los tópicos predominantes según una determinada zona de la traza:
+
+División de las trazas:
+ 
+- Basic zone: Zona inicial para cada traza (no se suponen errores en esta zona)
+- Middle zone: Zona media de la traza donde pueden existir ciertos logs asociados al error
+- Danger zone: Zona que suponemos que está directamente relacionada ya sea como causa o consecuencia al error de la traza.
+
+Primer enfoque: tomar el tópico predominante asociado a cada traza error y conocer las frecuencias del tópico predominante 
+(se puede hacer esto mismo para las trazas de no error) 
+ 
+Posibles problemas: ¿qué pasa si dos trazas son "iguales"? ¿o si representan el mismo error? 
+- Solución: Formar una bolsa de logs pertenecientes a todas las trazas con error, identificar los logs únicos, y luego obtener el tópico predominante.
+
+Segundo enfoque: Para cada middle zone de las trazas con error, obtengo la frecuencia del tópico predominante y reviso. Puedo crear una bolsa de logs pertenecientes a todas
+las middle zone y ver cual es el topico predominate y revisar.
+
+Tercer enfoque: Repetir para la danger zone.
+
+##### Heavy logs:
+
+Podemos utilizar esta caracterización de los tópicos (dada su frecuencia) para darles un peso:
+
+Por ejemplo: tòpico asociado a errores -> 50, resto de topicos, 10-5, etc. Podemos revisar entonces que las trazas con no error pesan menos 
+dado los topicos de ocurrencia en comparación a la trazas con error. Se puede establecer una métrica de aparición/peso que me permita saber 
+cuando una traza viene muy pesada. 
+
+##### L-grafico
+
+Puedo utilizar este mismo peso para crear un gráfico estilo cardiograma que me muestre, en orden de aparición de los logs, el peso de los topicos 
+Zonas muy pesadas al comienzo de una traza pueden dar pie a pensar que va a quedar la crema .
+
+##### Recurrencia:
+
+Dada esta nueva caracterización de las trazas de acuerdo a los topicos de ocurrencia, puedo transformar las trazas a un vector de tamaño variable
+que tendrá una etiqueta de ERROR y no ERROR, ¿se podrá identificar patrones con redes recurrentes que me permitan saber cuando va a quedar la cagá de antemano?
+
+Adicional 2: Se puede extrapolar esto a cualquier algoritmo de clustering.
+
+Adicional 3: Estudiar bien la longitud de las trazas errores y no errores, puede ser importante.
+
+Adicional 4: ¿Habrá algún elemento del df original que me sirva? ¿alguna columna adiciona? 
+
