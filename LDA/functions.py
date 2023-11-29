@@ -6,7 +6,7 @@ import warnings
 
 from dataset.TPL import TplPionier
 import dataset.preprocessing as dataset
-
+import math
 import matplotlib.pyplot as plt
 import pandas as pd
 import re
@@ -315,5 +315,53 @@ def graphic_pertrace(data=TplPionier(config=config.ds_medium).index, corpus=load
     plt.show()
 
 
+def weighing_topics(num_topics):
+    
+    topics=  load_topic_list(num_topics=num_topics) 
 
+    #N
+    N=len(topics)
+    
+    n_t = {i: 0 for i in range(num_topics)}
+    w_idf={i: 0 for i in range(num_topics)}
+
+    #n_t
+    for i in range(len(topics)):
+        uniques=set(topics[i])
+        for num in uniques: 
+            n_t[num] += 1
+    #w_idf
+    for idx_topic in n_t:
+        w_idf[idx_topic] = math.log(N/n_t[idx_topic])
+
+    weighed_topics = [[ w_idf[topic] for topic in trace] for trace in topics]
+
+    return n_t, w_idf, weighed_topics
+
+def plotting_widf(n_t, w_idf):
+
+    idx_topics=[idx for idx in list(n_t.keys())]
+    n_t_values=list(n_t.values())
+    w_idf_values=list(w_idf.values())
+
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+
+    ax1.bar(idx_topics, n_t_values, color='purple', edgecolor='black')
+    ax1.set_xlabel('Número')
+    ax1.set_ylabel('Frecuencia')
+    ax1.set_title('Frecuencia de Números en Lista Anidada')
+    for numero, frecuencia in zip(idx_topics, n_t_values):
+        ax1.text(numero, frecuencia + 0.1, str(frecuencia), ha='center', va='bottom')
+
+    ax2.bar(idx_topics, w_idf_values, color='green', edgecolor='black')
+    ax2.set_xlabel('Número')
+    ax2.set_ylabel('Frecuencia')
+    ax2.set_title('Frecuencia de Números en Lista Anidada')
+
+    for numero, frecuencia in zip(idx_topics, w_idf_values):
+        ax2.text(numero, frecuencia + 0.1, round(frecuencia,2), ha='center', va='bottom')
+
+
+    plt.show()
 
