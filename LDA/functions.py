@@ -15,6 +15,7 @@ import os
 import pickle
 from datetime import datetime
 import glob
+from collections import Counter
 
  
 
@@ -365,3 +366,25 @@ def plotting_widf(n_t, w_idf):
 
     plt.show()
 
+def relative_frequency(num_topics, ds=TplPionier(config=config.ds_medium), percentage_display=1):
+    topics=load_topic_list(num_topics=num_topics)
+    errors_idx= list(ds.index[ds.index['ERROR'] == True].index)
+    error_topics = [topics[j] for j in errors_idx]
+    cut_error_topics=[]
+    for i in range(len(errors_idx)):
+        cutting_index=int(len(error_topics[i]) * percentage_display)
+        cut_trace=error_topics[i][-cutting_index:]
+        cut_error_topics.append(cut_trace)
+    freq_error_topics = Counter(num for error_trace in cut_error_topics for num in error_trace)
+    topic_id, freq= zip(*freq_error_topics.items())
+    total_error_logs= sum(freq)
+    freq_relative_error_topics= {clave: valor / total_error_logs for clave, valor in zip(topic_id,freq)}
+
+    freq_relative_topics = {i: 0 for i in range(0, num_topics)}
+
+    freq_relative_topics.update(freq_relative_error_topics)
+
+    weighed_topics = [[ freq_relative_topics[topic] for topic in trace] for trace in topics]
+    
+
+    return freq_relative_topics, weighed_topics
